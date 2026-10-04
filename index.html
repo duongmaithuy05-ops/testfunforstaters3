@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun for Starters - Cambridge English Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00A884;
+            --mint-light: #EBF8F5;
+            --submit-green: #1FAA59;
+            --orange: #F5A623;
+            --navy: #1E293B;
+            --wrong-red: #FF4D4F;
+            --wrong-pink: #FFF1F0;
+            --correct-bg: #F6FFED;
+            --gray-light: #F8FAFC;
+        }
+
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--mint-light);
+            color: var(--navy);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 50px;
+        }
+
+        /* Doodle Pattern Background */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--mint) 2px, transparent 2px), radial-gradient(var(--orange) 2px, transparent 2px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+
+        /* Header */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; padding: 15px 25px; border-radius: 50px;
+            box-shadow: 0 8px 24px rgba(0,168,132,0.1); margin-bottom: 30px;
+            border: 3px solid var(--mint); position: sticky; top: 15px; z-index: 100;
+        }
+        .teacher-tag { font-weight: 800; font-size: 18px; color: var(--mint); }
+        .timer {
+            background: var(--orange); color: #fff; padding: 8px 20px;
+            border-radius: 30px; font-weight: 800; font-size: 20px;
+            box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3); transition: 0.3s;
+        }
+        .timer.warning { background: var(--wrong-red); animation: blink 1s infinite; box-shadow: 0 4px 12px rgba(255, 77, 79, 0.4); }
+        @keyframes blink { 50% { opacity: 0.7; transform: scale(1.05); } }
+
+        /* Card / Question Box */
+        .card {
+            background: var(--gray-light); border-radius: 24px; padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px;
+            border: 2px solid #fff;
+        }
+        h2.part-title { color: var(--navy); font-weight: 900; font-size: 24px; margin-bottom: 10px; }
+        .instruction { color: #64748B; font-weight: 600; font-size: 18px; margin-bottom: 25px; display: block; }
+        
+        /* Images */
+        .img-container { text-align: center; margin-bottom: 25px; }
+        .img-container img { max-width: 100%; border-radius: 16px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid #fff; }
+        .error-img { color: var(--wrong-red); font-weight: 700; display: none; padding: 20px; border: 2px dashed var(--wrong-red); border-radius: 16px; background: #fff;}
+
+        /* Audio Player */
+        .audio-wrapper {
+            display: flex; align-items: center; background: #fff; padding: 12px 20px;
+            border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 25px; width: max-content;
+        }
+        .play-btn {
+            background: var(--orange); color: #fff; border: none; width: 40px; height: 40px;
+            border-radius: 50%; font-size: 18px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center;
+        }
+        .play-btn:hover:not(:disabled) { transform: scale(1.1); }
+        .play-btn:disabled { background: #CBD5E1; cursor: not-allowed; }
+        .progress-bar { width: 150px; height: 8px; background: #E2E8F0; border-radius: 10px; margin: 0 15px; overflow: hidden; }
+        .progress { height: 100%; background: var(--mint); width: 0%; transition: 0.1s linear; }
+        .play-count { font-weight: 800; color: var(--navy); font-size: 14px; }
+
+        /* Inputs & Controls */
+        input[type="text"] {
+            border: 3px solid #E2E8F0; border-radius: 50px; padding: 10px 20px;
+            font-size: 18px; font-weight: 700; color: var(--navy); outline: none; transition: 0.2s;
+            width: 200px; text-align: center;
+        }
+        input[type="text"]:focus { border-color: var(--mint); box-shadow: 0 0 0 4px rgba(0, 168, 132, 0.1); }
+        input[type="text"]:disabled { background: #f1f5f9; cursor: not-allowed; }
+        
+        select {
+            border: 3px solid #E2E8F0; border-radius: 50px; padding: 10px 20px;
+            font-size: 16px; font-weight: 700; color: var(--navy); outline: none; transition: 0.2s;
+            cursor: pointer; appearance: none; background: #fff url('data:image/svg+xml;utf8,<svg fill="%231E293B" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 15px center; background-size: 20px; padding-right: 45px;
+        }
+        select:focus { border-color: var(--mint); }
+        select:disabled { background: #f1f5f9; cursor: not-allowed; }
+
+        /* Checkbox Grid */
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+        .checkbox-label {
+            position: relative; display: flex; align-items: center; justify-content: center; padding: 12px;
+            background: #fff; border: 3px solid #E2E8F0; border-radius: 50px;
+            font-weight: 700; cursor: pointer; transition: 0.2s; user-select: none; overflow: hidden;
+        }
+        .checkbox-label input { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; top: 0; left: 0; margin: 0; }
+        .checkbox-label:hover { transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.05); }
+        .checkbox-label.checked { background: var(--mint-light); border-color: var(--mint); color: var(--mint); }
+        .checkbox-label.disabled { cursor: not-allowed; opacity: 0.7; }
+
+        /* Question Layout */
+        .q-row { display: flex; align-items: center; margin-bottom: 15px; font-size: 18px; font-weight: 600; flex-wrap: wrap; gap: 10px; }
+        .q-num { background: var(--navy); color: #fff; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 14px; font-weight: 800; margin-right: 10px; }
+
+        /* Buttons */
+        .btn {
+            background: var(--submit-green); color: #fff; border: none; padding: 16px 40px;
+            font-size: 22px; font-weight: 900; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 6px 0 #148041; transition: all 0.1s; display: block; margin: 30px auto;
+        }
+        .btn:active { transform: translateY(6px); box-shadow: 0 0 0 #148041; }
+        .btn:hover { filter: brightness(1.1); }
+        .btn-start { background: var(--orange); box-shadow: 0 6px 0 #d35400; }
+        .btn-start:active { box-shadow: 0 0 0 #d35400; }
+
+        /* Start Screen */
+        #start-screen { text-align: center; padding: 60px 20px; }
+        #start-screen img { width: 120px; margin-bottom: 20px; }
+        #start-screen h1 { font-size: 36px; color: var(--navy); font-weight: 900; margin-bottom: 20px; }
+
+        /* Feedback UI */
+        .feedback { margin-top: 5px; font-size: 15px; font-weight: 700; padding: 8px 15px; border-radius: 12px; display: none; width: fit-content; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .is-correct { border-color: var(--submit-green) !important; background-color: var(--correct-bg) !important; color: var(--submit-green) !important; }
+        .is-wrong { border-color: var(--wrong-red) !important; background-color: var(--wrong-pink) !important; color: var(--wrong-red) !important; }
+        .fb-correct { background: var(--correct-bg); color: var(--submit-green); border: 2px solid var(--submit-green); }
+        .fb-wrong { background: var(--wrong-pink); color: var(--wrong-red); border: 2px solid var(--wrong-red); }
+
+        /* Report Screen */
+        #report-screen { display: none; text-align: center; }
+        .score-circle {
+            width: 150px; height: 150px; border-radius: 50%; background: var(--mint-light);
+            border: 8px solid var(--mint); display: flex; align-items: center; justify-content: center;
+            font-size: 40px; font-weight: 900; color: var(--mint); margin: 0 auto 30px; box-shadow: 0 10px 30px rgba(0,168,132,0.2);
+        }
+        .report-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .report-table th, .report-table td { padding: 15px; text-align: left; border-bottom: 2px solid var(--gray-light); font-weight: 700; font-size: 16px; text-align: center;}
+        .report-table th { background: var(--mint); color: #fff; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 13px; color: #fff; font-weight: 800; }
+        .bg-mastered { background: var(--submit-green); }
+        .bg-practice { background: var(--orange); }
+        .bg-weak { background: var(--wrong-red); }
+        
+        .teacher-comment { background: #fff; padding: 25px; border-radius: 20px; border: 3px dashed var(--orange); text-align: left; box-shadow: 0 8px 20px rgba(245, 166, 35, 0.1); }
+        .teacher-comment h3 { color: var(--orange); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 900;}
+
+        canvas#confetti { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti"></canvas>
+
+    <div class="container" id="main-container">
+        <!-- START SCREEN -->
+        <div id="start-screen" class="card">
+            <h1>🎪 Fun for Starters Test 🌟</h1>
+            <p style="font-size: 18px; font-weight: 600; color: #64748B; margin-bottom: 30px;">Ms. Mai Thuy wishes you all the best in your test!</p>
+            <input type="text" id="student-name" placeholder="Enter your name here..." autocomplete="off">
+            <button type="button" class="btn btn-start" onclick="startTest()">LET'S START 🚀</button>
+        </div>
+
+        <!-- TEST SCREEN -->
+        <div id="test-screen" style="display: none;">
+            <header>
+                <div class="teacher-tag">🌟 Teacher: Ms. Mai Thuy 🎈 | Student: <span id="display-name" style="color: var(--orange);"></span></div>
+                <div class="timer" id="timer">15:00</div>
+            </header>
+
+            <!-- SECTION 1: LISTENING -->
+            <div id="section-listening">
+                <h1 style="color: var(--mint); font-weight: 900; margin-bottom: 20px; text-align: center; font-size: 32px;">🎧 SECTION 1: LISTENING</h1>
+                
+                <!-- Part 1 -->
+                <div class="card">
+                    <h2 class="part-title">Part 1</h2>
+                    <span class="instruction">Listen and write a name or a number.</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="lisimage1.png" style="max-width: 60%;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: lisimage1.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div class="audio-wrapper">
+                        <button type="button" class="play-btn" id="btn-audio1" onclick="playAudio('audio1', this)">▶</button>
+                        <div class="progress-bar"><div class="progress" id="prog-audio1"></div></div>
+                        <span class="play-count" id="count-audio1">0/2 Plays</span>
+                        <audio id="audio1" src="audio1.mp3" ontimeupdate="updateProgress(this, 'prog-audio1')" onended="audioEnded('audio1', 'btn-audio1', 'count-audio1')"></audio>
+                    </div>
+                    
+                    <div class="q-row"><span class="q-num">1</span> How many children are in Matt’s class? 
+                        <div><input type="text" id="l1q1" data-ans="19">
+                        <div class="feedback" id="fb-l1q1"></div></div>
+                    </div>
+                    <div class="q-row"><span class="q-num">2</span> How many pictures are on the wall? 
+                        <div><input type="text" id="l1q2" data-ans="14">
+                        <div class="feedback" id="fb-l1q2"></div></div>
+                    </div>
+                    <div class="q-row"><span class="q-num">3</span> What is the name of Matt’s monster? 
+                        <div><input type="text" id="l1q3" data-ans="grace">
+                        <div class="feedback" id="fb-l1q3"></div></div>
+                    </div>
+                    <div class="q-row"><span class="q-num">4</span> How many eyes has Matt’s monster got? 
+                        <div><input type="text" id="l1q4" data-ans="12">
+                        <div class="feedback" id="fb-l1q4"></div></div>
+                    </div>
+                    <div class="q-row"><span class="q-num">5</span> Who has got a jellyfish monster in his picture? 
+                        <div><input type="text" id="l1q5" data-ans="bill">
+                        <div class="feedback" id="fb-l1q5"></div></div>
+                    </div>
+                </div>
+
+                <!-- Part 2 -->
+                <div class="card">
+                    <h2 class="part-title">Part 2</h2>
+                    <span class="instruction">What's in Ben's funny fruit drink? Tick (✔) five boxes.</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="lisimage2.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: lisimage2.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div class="audio-wrapper">
+                        <button type="button" class="play-btn" id="btn-audio2" onclick="playAudio('audio2', this)">▶</button>
+                        <div class="progress-bar"><div class="progress" id="prog-audio2"></div></div>
+                        <span class="play-count" id="count-audio2">0/2 Plays</span>
+                        <audio id="audio2" src="audio2.mp3" ontimeupdate="updateProgress(this, 'prog-audio2')" onended="audioEnded('audio2', 'btn-audio2', 'count-audio2')"></audio>
+                    </div>
+                    
+                    <div class="checkbox-grid" id="l2-checkboxes">
+                        <!-- JS Render -->
+                    </div>
+                    <div class="feedback" id="fb-l2" style="margin-top: 15px;"></div>
+                </div>
+
+                <!-- Part 3 -->
+                <div class="card">
+                    <h2 class="part-title">Part 3</h2>
+                    <span class="instruction">Listen and draw lines (Match the name to the person).</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="lisimage3.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: lisimage3.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div class="audio-wrapper">
+                        <button type="button" class="play-btn" id="btn-audio3" onclick="playAudio('audio3', this)">▶</button>
+                        <div class="progress-bar"><div class="progress" id="prog-audio3"></div></div>
+                        <span class="play-count" id="count-audio3">0/2 Plays</span>
+                        <audio id="audio3" src="audio3.mp3" ontimeupdate="updateProgress(this, 'prog-audio3')" onended="audioEnded('audio3', 'btn-audio3', 'count-audio3')"></audio>
+                    </div>
+                    
+                    <div id="l3-dropdowns">
+                        <!-- JS Render -->
+                    </div>
+                </div>
+
+                <button type="button" class="btn" id="btn-submit-listening" onclick="submitListening()">SUBMIT LISTENING 🎧</button>
+                <button type="button" class="btn btn-start" id="btn-next-reading" style="display: none;" onclick="nextToReading()">CONTINUE TO READING 📖</button>
+            </div>
+
+            <!-- SECTION 2: READING & WRITING -->
+            <div id="section-reading" style="display: none;">
+                <h1 style="color: var(--mint); font-weight: 900; margin-bottom: 20px; text-align: center; font-size: 32px;">📖 SECTION 2: READING & WRITING</h1>
+                
+                <!-- Part 1 -->
+                <div class="card">
+                    <h2 class="part-title">Part 1</h2>
+                    <span class="instruction">Match the questions and answers.</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="read1.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: read1.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div id="r1-dropdowns"></div>
+                </div>
+
+                <!-- Part 2 -->
+                <div class="card">
+                    <h2 class="part-title">Part 2</h2>
+                    <span class="instruction">Read the sentences. Write the correct names under the pictures.</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="read2.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: read2.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="q-row"><span class="q-num">1</span> Picture 1: <div><input type="text" id="r2q1" data-ans="lucy"><div class="feedback" id="fb-r2q1"></div></div></div>
+                        <div class="q-row"><span class="q-num">2</span> Picture 2: <div><input type="text" id="r2q2" data-ans="tom"><div class="feedback" id="fb-r2q2"></div></div></div>
+                        <div class="q-row"><span class="q-num">3</span> Picture 3: <div><input type="text" id="r2q3" data-ans="pat"><div class="feedback" id="fb-r2q3"></div></div></div>
+                        <div class="q-row"><span class="q-num">4</span> Picture 4: <div><input type="text" id="r2q4" data-ans="may"><div class="feedback" id="fb-r2q4"></div></div></div>
+                        <div class="q-row"><span class="q-num">5</span> Picture 5: <div><input type="text" id="r2q5" data-ans="nick"><div class="feedback" id="fb-r2q5"></div></div></div>
+                        <div class="q-row"><span class="q-num">6</span> Picture 6: <div><input type="text" id="r2q6" data-ans="dan"><div class="feedback" id="fb-r2q6"></div></div></div>
+                    </div>
+                </div>
+
+                <!-- Part 3 -->
+                <div class="card">
+                    <h2 class="part-title">Part 3</h2>
+                    <span class="instruction">Answer the questions. Write one word or a number.</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="read3.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: read3.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div class="q-row"><span class="q-num">1</span> How many lizards are there? <div><input type="text" id="r3q1" data-ans="2|two"><div class="feedback" id="fb-r3q1"></div></div></div>
+                    <div class="q-row"><span class="q-num">2</span> What fruit is under the tree? a <div><input type="text" id="r3q2" data-ans="coconut"><div class="feedback" id="fb-r3q2"></div></div></div>
+                    <div class="q-row"><span class="q-num">3</span> What's the bird wearing? some <div><input type="text" id="r3q3" data-ans="glasses"><div class="feedback" id="fb-r3q3"></div></div></div>
+                    <div class="q-row"><span class="q-num">4</span> What colour is the bird's head? <div><input type="text" id="r3q4" data-ans="red"><div class="feedback" id="fb-r3q4"></div></div></div>
+                    <div class="q-row"><span class="q-num">5</span> How many grapes are there? <div><input type="text" id="r3q5" data-ans="5|five"><div class="feedback" id="fb-r3q5"></div></div></div>
+                    <div class="q-row"><span class="q-num">6</span> What colour are the grapes? <div><input type="text" id="r3q6" data-ans="green"><div class="feedback" id="fb-r3q6"></div></div></div>
+                </div>
+
+                <!-- Part 4 -->
+                <div class="card">
+                    <h2 class="part-title">Part 4</h2>
+                    <span class="instruction">Find the correct words in the snake and write them on the lines.</span>
+                    <div class="img-container">
+                        <!-- SỬA Ở ĐÂY: Đổi thành .png -->
+                        <img src="read4.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="error-img">❌ Error loading image: read4.png. Please keep it in the same folder.</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="q-row"><span class="q-num">1</span> 🐓 <div><input type="text" id="r4q1" data-ans="chicken"><div class="feedback" id="fb-r4q1"></div></div></div>
+                        <div class="q-row"><span class="q-num">2</span> 🦛 <div><input type="text" id="r4q2" data-ans="hippo"><div class="feedback" id="fb-r4q2"></div></div></div>
+                        <div class="q-row"><span class="q-num">3</span> 🦎 <div><input type="text" id="r4q3" data-ans="lizard"><div class="feedback" id="fb-r4q3"></div></div></div>
+                        <div class="q-row"><span class="q-num">4</span> 🦓 <div><input type="text" id="r4q4" data-ans="zebra"><div class="feedback" id="fb-r4q4"></div></div></div>
+                        <div class="q-row"><span class="q-num">5</span> 🐅 <div><input type="text" id="r4q5" data-ans="tiger"><div class="feedback" id="fb-r4q5"></div></div></div>
+                        <div class="q-row"><span class="q-num">6</span> 🐴 <div><input type="text" id="r4q6" data-ans="donkey"><div class="feedback" id="fb-r4q6"></div></div></div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn" id="btn-submit-reading" onclick="submitReading()">FINISH READING 📖</button>
+                <button type="button" class="btn btn-start" id="btn-show-report" style="display: none;" onclick="showReport()">VIEW RESULT 🎉</button>
+            </div>
+        </div>
+
+        <!-- REPORT SCREEN -->
+        <div id="report-screen" class="card">
+            <h1 style="font-size: 32px; color: var(--mint); margin-bottom: 20px;">🎉 PERFORMANCE REPORT 🎉</h1>
+            <h2 style="color: var(--navy); margin-bottom: 30px;">Student: <span id="report-name" style="color: var(--orange);"></span></h2>
+            
+            <div class="score-circle">
+                <span id="total-score">0</span><span style="font-size: 20px;">/200</span>
+            </div>
+
+            <table class="report-table">
+                <thead><tr><th>Skill</th><th>Score (%)</th><th>Level</th></tr></thead>
+                <tbody id="report-body"></tbody>
+            </table>
+
+            <div class="teacher-comment" id="teacher-comment">
+                <!-- JS Render -->
+            </div>
+        </div>
+    </div>
+
+<script>
+// Data Initialization
+const l2Options = ['pear', 'tomato', 'carrot', 'orange', 'apple', 'grapes', 'mango', 'banana', 'lemon'];
+const l2Correct = ['lemon', 'banana', 'pear', 'orange', 'carrot'];
+
+const l3Names = ['Sam', 'Grace', 'Hugo', 'Bill', 'Eva', 'Sue', 'Alice'];
+const l3Actions = [
+    { text: 'looking at the chocolate cake', isAns: true, name: 'Sam' },
+    { text: 'looking at kiwis in the box', isAns: true, name: 'Grace' },
+    { text: 'drinking milk', isAns: true, name: 'Hugo' },
+    { text: 'tall and opening the cupboard', isAns: true, name: 'Bill' },
+    { text: 'coming in the door wearing a yellow dress', isAns: true, name: 'Eva' },
+    { text: 'sitting on the floor', isAns: false, name: '' } 
+];
+
+const r1Questions = [
+    { q: 'What has Lucy got?', ans: 'c. a bag' },
+    { q: 'What is Anna doing?', ans: 'a. She\'s waving.' },
+    { q: 'What has Nick got?', ans: 'f. a box' },
+    { q: 'What is Dan doing?', ans: 'e. He\'s running.' },
+    { q: 'What is Matt wearing?', ans: 'd. a hat' },
+    { q: 'What colour is Bill\'s T-shirt?', ans: 'b. It\'s purple.' }
+];
+const r1Options = ['a. She\'s waving.', 'b. It\'s purple.', 'c. a bag', 'd. a hat', 'e. He\'s running.', 'f. a box'];
+
+let timerInterval;
+let timeLeft = 15 * 60;
+let scores = {
+    listening: { correct: 0, total: 15, percent: 0 },
+    reading: { correct: 0, total: 24, percent: 0 }
+};
+
+let audioCtx = null;
+
+// Khởi tạo giao diện AN TOÀN bằng DOMContentLoaded bọc trong Try-Catch
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        // Render L Part 2
+        const l2Div = document.getElementById('l2-checkboxes');
+        if(l2Div) {
+            l2Options.forEach(opt => {
+                let lbl = document.createElement('label');
+                lbl.className = 'checkbox-label';
+                lbl.innerHTML = `<input type="checkbox" value="${opt}" onchange="toggleCheck(this)"> ${opt.charAt(0).toUpperCase() + opt.slice(1)}`;
+                l2Div.appendChild(lbl);
+            });
+        }
+
+        // Render L Part 3
+        const l3Div = document.getElementById('l3-dropdowns');
+        if(l3Div) {
+            let shuffledActions = [...l3Actions].sort(() => Math.random() - 0.5);
+            l3Names.forEach((name, idx) => {
+                let row = document.createElement('div');
+                row.className = 'q-row';
+                let sel = document.createElement('select');
+                sel.id = `l3q${idx+1}`;
+                let correctAct = l3Actions.find(a => a.name === name);
+                sel.dataset.ans = correctAct ? correctAct.text : 'none';
+                
+                sel.innerHTML = `<option value="">-- Action of ${name}? --</option>`;
+                shuffledActions.forEach(act => {
+                    sel.innerHTML += `<option value="${act.text}">${act.text}</option>`;
+                });
+                sel.innerHTML += `<option value="none">(This person is not in the picture)</option>`;
+                
+                row.innerHTML = `<span class="q-num">${idx+1}</span> <span style="min-width: 60px;">${name}</span> ➡ `;
+                let wrap = document.createElement('div');
+                wrap.style.flex = "1";
+                wrap.appendChild(sel);
+                wrap.innerHTML += `<div class="feedback" id="fb-${sel.id}"></div>`;
+                row.appendChild(wrap);
+                l3Div.appendChild(row);
+            });
+        }
+
+        // Render R Part 1
+        const r1Div = document.getElementById('r1-dropdowns');
+        if(r1Div) {
+            let shuffledROptions = [...r1Options].sort(() => Math.random() - 0.5);
+            r1Questions.forEach((item, idx) => {
+                let row = document.createElement('div');
+                row.className = 'q-row';
+                let sel = document.createElement('select');
+                sel.id = `r1q${idx+1}`;
+                sel.dataset.ans = item.ans;
+                sel.innerHTML = `<option value="">-- Choose an answer --</option>`;
+                shuffledROptions.forEach(opt => {
+                    sel.innerHTML += `<option value="${opt}">${opt}</option>`;
+                });
+                row.innerHTML = `<span class="q-num">${idx+1}</span> <span style="min-width: 190px;">${item.q}</span> ➡ `;
+                let wrap = document.createElement('div');
+                wrap.style.flex = "1";
+                wrap.appendChild(sel);
+                wrap.innerHTML += `<div class="feedback" id="fb-${sel.id}"></div>`;
+                row.appendChild(wrap);
+                r1Div.appendChild(row);
+            });
+        }
+    } catch(e) {
+        console.error("Error rendering UI:", e);
+    }
+});
+
+// Checkbox UI Toggle
+function toggleCheck(checkbox) {
+    if(checkbox.checked) {
+        checkbox.parentElement.classList.add('checked');
+    } else {
+        checkbox.parentElement.classList.remove('checked');
+    }
+}
+
+// --- AUDIO LOGIC LAZY-LOAD ---
+const audioState = { audio1: 0, audio2: 0, audio3: 0 };
+
+function initAudio() {
+    try {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if(AudioContext) audioCtx = new AudioContext();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    } catch(e) {
+        console.warn("Browser does not support automatic AudioContext");
+    }
+}
+
+function playTone(type) {
+    try {
+        initAudio();
+        if(!audioCtx) return;
+        
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        if(type === 'ding') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        }
+        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+    } catch(e) {}
+}
+
+function playAudio(id, btn) {
+    const audio = document.getElementById(id);
+    if(audioState[id] >= 2) return;
+    
+    if(audio.paused) {
+        document.querySelectorAll('audio').forEach(a => { if(a.id !== id) a.pause(); });
+        let playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                btn.innerHTML = '⏸';
+            }).catch(error => {
+                alert(`⚠️ Error: Cannot play audio! Please save the file '${id}.mp3' in the same folder.`);
+                btn.innerHTML = '▶';
+            });
+        }
+    } else {
+        audio.pause();
+        btn.innerHTML = '▶';
+    }
+}
+
+function updateProgress(audio, progId) {
+    const prog = document.getElementById(progId);
+    let percent = (audio.currentTime / audio.duration) * 100;
+    prog.style.width = percent + '%';
+}
+
+function audioEnded(id, btnId, countId) {
+    const btn = document.getElementById(btnId);
+    const countSpan = document.getElementById(countId);
+    btn.innerHTML = '▶';
+    audioState[id]++;
+    countSpan.innerText = `${audioState[id]}/2 Plays`;
+    if(audioState[id] >= 2) {
+        btn.disabled = true;
+    }
+}
+
+function stopAllAudio() {
+    document.querySelectorAll('audio').forEach(a => {
+        a.pause();
+        let btn = document.getElementById('btn-' + a.id);
+        if(btn && !btn.disabled) btn.innerHTML = '▶';
+    });
+}
+
+// --- TEST FLOW ---
+window.startTest = function() {
+    try {
+        let nameInput = document.getElementById('student-name');
+        let name = nameInput ? nameInput.value.trim() : "";
+        
+        if(!name) { name = "Anonymous Student"; }
+        
+        document.getElementById('display-name').innerText = name;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('test-screen').style.display = 'block';
+        window.scrollTo(0,0);
+        
+        initAudio();
+        startTimer(submitListening);
+    } catch(e) {
+        console.error("Error starting test:", e);
+        alert("Error starting the test! Please reload the page.");
+    }
+};
+
+function startTimer(callback) {
+    clearInterval(timerInterval);
+    timeLeft = 15 * 60;
+    const timerEl = document.getElementById('timer');
+    timerEl.classList.remove('warning');
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        timerEl.innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+        
+        if (timeLeft <= 180) timerEl.classList.add('warning');
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            alert("⏰ Time's up! Generating feedback now.");
+            callback();
+        }
+    }, 1000);
+}
+
+function showFeedback(id, isCorrect, correctAnsText) {
+    const fb = document.getElementById('fb-' + id);
+    const input = document.getElementById(id);
+    if(!fb || !input) return;
+    
+    fb.style.display = 'block';
+    if(isCorrect) {
+        input.classList.add('is-correct');
+        fb.classList.add('fb-correct');
+        fb.innerHTML = '✅ Excellent!';
+    } else {
+        input.classList.add('is-wrong');
+        fb.classList.add('fb-wrong');
+        fb.innerHTML = `❌ Correct answer: <b>${correctAnsText}</b>`;
+    }
+    input.disabled = true;
+    if(input.tagName === "SELECT") {
+        input.parentElement.classList.add('disabled');
+    }
+}
+
+// Hàm chấm điểm Listening và hiển thị kết quả (chưa sang phần mới ngay)
+window.submitListening = function() {
+    stopAllAudio();
+    clearInterval(timerInterval);
+    document.getElementById('timer').innerText = "Review";
+    let scoreL = 0;
+    
+    // Part 1
+    for(let i=1; i<=5; i++) {
+        let id = 'l1q'+i;
+        let el = document.getElementById(id);
+        if(el) {
+            let val = el.value.trim().toLowerCase();
+            let ans = el.dataset.ans.toLowerCase();
+            if(val === ans) { scoreL++; showFeedback(id, true); }
+            else { showFeedback(id, false, el.dataset.ans); }
+        }
+    }
+    
+    // Part 2
+    let cbScore = 0;
+    let ticked = [];
+    document.querySelectorAll('#l2-checkboxes input:checked').forEach(cb => ticked.push(cb.value));
+    ticked.forEach(t => { if(l2Correct.includes(t)) cbScore++; else cbScore--; }); 
+    if(cbScore < 0) cbScore = 0;
+    if(cbScore > 5) cbScore = 5;
+    scoreL += cbScore;
+    
+    const fbL2 = document.getElementById('fb-l2');
+    if(fbL2) {
+        fbL2.style.display = 'block';
+        if(cbScore === 5) {
+            fbL2.className = 'feedback fb-correct'; fbL2.innerHTML = '✅ Part 2: Excellent! You got them all right.';
+        } else {
+            fbL2.className = 'feedback fb-wrong'; fbL2.innerHTML = `❌ Part 2: Your score: ${cbScore}/5. Correct answers: ${l2Correct.join(', ')}.`;
+        }
+    }
+    document.querySelectorAll('#l2-checkboxes input').forEach(cb => {
+        cb.disabled = true;
+        cb.parentElement.classList.add('disabled');
+    });
+
+    // Part 3
+    for(let i=1; i<=l3Names.length; i++) {
+        let id = 'l3q'+i;
+        let el = document.getElementById(id);
+        if(el) {
+            let val = el.value;
+            let ans = el.dataset.ans;
+            if(val === ans) { scoreL++; showFeedback(id, true); }
+            else { showFeedback(id, false, ans === 'none' ? '(No action)' : ans); }
+        }
+    }
+
+    scores.listening.correct = scoreL;
+    scores.listening.percent = Math.round((scoreL / 15) * 100);
+
+    // Ẩn nút nộp bài, hiện nút xem tiếp để học sinh có thời gian xem lại
+    document.getElementById('btn-submit-listening').style.display = 'none';
+    document.getElementById('btn-next-reading').style.display = 'block';
+    
+    // Cuộn lên đầu để xem từ đầu
+    window.scrollTo(0,0);
+};
+
+// Hàm chuyển từ Listening sang Reading
+window.nextToReading = function() {
+    document.getElementById('section-listening').style.display = 'none';
+    document.getElementById('section-reading').style.display = 'block';
+    window.scrollTo(0,0);
+    startTimer(submitReading);
+};
+
+// Hàm chấm điểm Reading và hiển thị kết quả (chưa sang trang Report)
+window.submitReading = function() {
+    clearInterval(timerInterval);
+    document.getElementById('timer').innerText = "Review";
+    let scoreR = 0;
+
+    // Part 1
+    for(let i=1; i<=6; i++) {
+        let id = 'r1q'+i; let el = document.getElementById(id);
+        if(el) {
+            if(el.value === el.dataset.ans) { scoreR++; showFeedback(id, true); }
+            else showFeedback(id, false, el.dataset.ans);
+        }
+    }
+    
+    // Part 2, 3, 4
+    const checkOneword = (prefix, total) => {
+        for(let i=1; i<=total; i++) {
+            let id = prefix+i; let el = document.getElementById(id);
+            if(el) {
+                let val = el.value.trim().toLowerCase();
+                let answers = el.dataset.ans.toLowerCase().split('|');
+                if(answers.includes(val)) { scoreR++; showFeedback(id, true); }
+                else showFeedback(id, false, answers[0]);
+            }
+        }
+    }
+    checkOneword('r2q', 6);
+    checkOneword('r3q', 6);
+    checkOneword('r4q', 6);
+
+    scores.reading.correct = scoreR;
+    scores.reading.percent = Math.round((scoreR / 24) * 100);
+
+    // Ẩn nút nộp bài, hiện nút sang trang Report
+    document.getElementById('btn-submit-reading').style.display = 'none';
+    document.getElementById('btn-show-report').style.display = 'block';
+    
+    window.scrollTo(0,0);
+};
+
+// Hàm chuyển trang và hiện Báo cáo điểm
+window.showReport = function() {
+    document.getElementById('test-screen').style.display = 'none';
+    const report = document.getElementById('report-screen');
+    report.style.display = 'block';
+    window.scrollTo(0,0);
+    
+    let studentName = document.getElementById('student-name').value.trim();
+    document.getElementById('report-name').innerText = studentName ? studentName : "Anonymous Student";
+    
+    let totalPercentL = scores.listening.percent;
+    let totalPercentR = scores.reading.percent;
+    let total200 = totalPercentL + totalPercentR;
+    
+    if (total200 > 100) { playTone('ding'); } else { playTone('buzzer'); }
+    
+    let currentScore = 0;
+    let interval = setInterval(() => {
+        currentScore += 3;
+        if(currentScore >= total200) { currentScore = total200; clearInterval(interval); }
+        document.getElementById('total-score').innerText = currentScore;
+    }, 20);
+
+    const getBadge = (pct) => {
+        if(pct > 80) return '<span class="badge bg-mastered">Good (Mastered)</span>';
+        if(pct >= 50) return '<span class="badge bg-practice">Fair (Needs Practice)</span>';
+        return '<span class="badge bg-weak">Needs Effort (Weakness)</span>';
+    };
+
+    let tbody = document.getElementById('report-body');
+    tbody.innerHTML = `
+        <tr><td>🎧 Listening</td><td>${totalPercentL}%</td><td>${getBadge(totalPercentL)}</td></tr>
+        <tr><td>📖 Reading & Writing</td><td>${totalPercentR}%</td><td>${getBadge(totalPercentR)}</td></tr>
+    `;
+
+    let commentBox = document.getElementById('teacher-comment');
+    let msg = "";
+    
+    if (totalPercentL > 80 && totalPercentR > 80) {
+        msg = `<h3>🎉 Excellent! 100 Doraemon Dorayakis for you!</h3>Ms. Mai Thuy is very proud. Your Listening and Reading & Writing skills are very solid. Keep it up!`;
+    } else if (totalPercentL < totalPercentR) {
+        msg = `<h3>🎧 Listening is a bit tricky, isn't it?</h3>Ms. Mai Thuy noticed you missed a few beats in Listening. Next time, I'll lend you Doraemon's <b>'Understanding Earphones'</b>! Remember to listen carefully for numbers, colors, and keywords. You can do it!`;
+    } else if (totalPercentR < totalPercentL) {
+        msg = `<h3>📖 Reading & Writing needs a little attention! 🚨</h3>You have good eyes, but you might need Doraemon's <b>'Magnifying Glass'</b> to look closer at the vocabulary! In Starters, pay attention to spelling carefully.`;
+    } else {
+        msg = `<h3>🌟 Try a little harder!</h3>You did a great job completing the test! To improve your score, I'm giving you Doraemon's <b>'Memory Bread'</b>. Learn 5 new words every day and you will definitely get 200 points next time!`;
+    }
+    
+    commentBox.innerHTML = msg;
+    triggerConfetti();
+}
+
+function triggerConfetti() {
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const pieces = [];
+    for(let i=0; i<150; i++) {
+        pieces.push({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
+            size: Math.random() * 10 + 5,
+            color: ['#00A884', '#1FAA59', '#F5A623', '#FF4D4F', '#1E293B'][Math.floor(Math.random() * 5)],
+            vy: Math.random() * 4 + 2, vx: Math.random() * 2 - 1, rot: Math.random() * 360
+        });
+    }
+    function update() {
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        let active = false;
+        pieces.forEach(p => {
+            p.y += p.vy; p.x += p.vx;
+            if(p.y < canvas.height) active = true;
+            ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot++ * Math.PI/180);
+            ctx.fillStyle = p.color; ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+            ctx.restore();
+        });
+        if(active) requestAnimationFrame(update);
+    }
+    update();
+}
+</script>
+</body>
+</html>
